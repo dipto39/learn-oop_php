@@ -36,11 +36,11 @@ class database{
             }
             if(!$limit == null){
                 $sql.="limit 0,$limit ";
+                
             }
-            echo $sql;
             $res=$this->mysqli->query($sql);
             if($res){
-                array_push($this->result,$res->fetch_row());
+                array_push($this->result,$res->fetch_all(MYSQLI_ASSOC));
                 return true;
             }else{
                 array_push($this->result,$this->mysqli->error);
@@ -51,10 +51,10 @@ class database{
     //insert function
      public function insert($table,$pram=array()){
         if($this->tableExists($table)){
-            print_r(array_keys($pram));
+            // print_r(array_keys($pram));
             $arval=implode("','",$pram);
              $arkey=implode(",",array_keys($pram));
-             echo $sql="insert into $table($arkey) values('$arval')";
+             $sql="insert into $table($arkey) values('$arval')";
              $res=$this->mysqli->query($sql);
              if($res){
                 array_push($this->result,$this->mysqli->insert_id);
@@ -74,16 +74,16 @@ class database{
      public function update($table,$pram=array(),$where=null){
         if($this->tableExists($table)){
             // print_r($pram);
-            $arr="";
+            $arr=array();
             foreach($pram as $key => $val){
-                $arr.="$key = '$val' ";
+                $arr[]="$key = '$val' ";
             }
             // echo $arr;
-            $sql="update into $table set $arr where sid = $where";
+            $sql="update $table set ". implode(', ',$arr) ."where sid = $where";
             $res=$this->mysqli->query($sql);
             if($sql){
-                array_push($this->result,"update successfully");
-                return false;
+                array_push($this->result,$sql);
+                return true;
             }else{
                 array_push($this->result,$this->mysqli->error);
                 return false;
@@ -93,7 +93,7 @@ class database{
     //delete function
     public function delete_row($table,$where){
         if($this->tableExists($table)){
-        $sql="delete form $table where $where";
+        $sql="delete from $table where sid =$where";
         $res=$this->mysqli->query($sql);
         if($res){
             return true;
